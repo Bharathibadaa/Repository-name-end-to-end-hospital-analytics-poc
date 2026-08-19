@@ -1,4 +1,4 @@
-command: ["uvicorn", "backend.main:app", "--host", "0.0.0.0", "--port", "DATABRICKS_APP_PORT"]
+command: ["python", "backend/main.py"]
 
 env:
   - name: DATABRICKS_WAREHOUSE_ID

@@ -6,6 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from databricks.sdk import WorkspaceClient
 from databricks.sdk.service.sql import StatementState
+import uvicorn
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
 logger = logging.getLogger(__name__)
@@ -181,3 +182,8 @@ def serve_react(full_path: str):
     if os.path.exists(index_html):
         return FileResponse(index_html)
     raise HTTPException(status_code=404, detail="Frontend not built. Run npm run build first.")
+
+
+if __name__ == "__main__":
+    port = int(os.environ.get("DATABRICKS_APP_PORT", 8000))
+    uvicorn.run(app, host="0.0.0.0", port=port, log_level="info")
