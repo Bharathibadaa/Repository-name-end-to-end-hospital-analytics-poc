@@ -1,0 +1,3 @@
+version: 1
+name: "hospital-analytics-monitor"
+description: "Hospital Analytics Pipeline Monitoring Databricks App"
