@@ -1,4 +1,8 @@
 # Databricks notebook source
+# /// script
+# [tool.databricks.environment]
+# environment_version = "5"
+# ///
 # MAGIC %md
 # MAGIC # Pipeline Audit Notebook
 # MAGIC
@@ -313,15 +317,32 @@ for source in SOURCES:
 # COMMAND ----------
 
 try:
-    # Create a DataFrame from the audit rows
-    audit_df = spark.createDataFrame(audit_rows)
+    # Get the exact schema from the existing audit Delta table
+    audit_schema = spark.table(AUDIT_TABLE).schema
+
+    # Create DataFrame using the known audit-table schema
+    audit_df = spark.createDataFrame(
+        audit_rows,
+        schema=audit_schema
+    )
 
     print("--- Audit rows to be inserted ---")
     display(audit_df)
 
-    # Append to the Delta audit table (do NOT overwrite historical records)
-    logger.info(f"Appending {audit_df.count()} audit rows to {AUDIT_TABLE}...")
-    audit_df.write.format("delta").mode("append").saveAsTable(AUDIT_TABLE)
+    # Append records - do NOT overwrite audit history
+    row_count = audit_df.count()
+
+    logger.info(
+        f"Appending {row_count} audit rows to {AUDIT_TABLE}..."
+    )
+
+    (
+        audit_df.write
+        .format("delta")
+        .mode("append")
+        .saveAsTable(AUDIT_TABLE)
+    )
+
     logger.info("Audit rows appended successfully.")
 
 except Exception as e:
