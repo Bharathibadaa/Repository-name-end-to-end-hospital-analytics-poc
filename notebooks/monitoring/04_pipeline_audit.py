@@ -266,7 +266,17 @@ for source in SOURCES:
         else:
             data_quality_pct = 0.0
 
-        status = "SUCCESS"
+        # Critical data quality rule: appointments must have a non-null, non-blank patient_id
+        if source == "appointments" and rejected_count > 0:
+            status = "FAILED"
+            error_msg = (
+                f"Critical data quality failure: "
+                f"{rejected_count} appointment record(s) "
+                f"have missing patient_id."
+            )
+        else:
+            status = "SUCCESS"
+            error_msg = None
         logger.info(f"{source}: audit metrics calculated successfully.")
 
     except Exception as e:

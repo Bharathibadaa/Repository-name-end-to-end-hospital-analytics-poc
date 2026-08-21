@@ -92,6 +92,30 @@ def trim_string_columns(df, table_name):
 
 # COMMAND ----------
 
+def filter_appointments_missing_patient_id(df, table_name):
+    """
+    For the appointments table only, reject rows where patient_id is null or blank.
+    Run this after duplicate removal and string trimming so blanks are correctly detected.
+    """
+    if table_name != "appointments":
+        return df
+    try:
+        before = df.count()
+        df = df.filter(
+            F.col("patient_id").isNotNull() &
+            (F.trim(F.col("patient_id")) != "")
+        )
+        after = df.count()
+        rejected = before - after
+        if rejected > 0:
+            logger.warning(f"appointments: rejected {rejected} row(s) with missing patient_id.")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to filter appointments by patient_id: {e}")
+        raise
+
+# COMMAND ----------
+
 def replace_null_values(df, table_name):
     """
     Replace null values with sensible defaults based on column type.
@@ -170,6 +194,7 @@ for table_name in TABLES:
         # Apply data cleansing steps in sequence
         df = remove_duplicates(df, table_name)
         df = trim_string_columns(df, table_name)
+        df = filter_appointments_missing_patient_id(df, table_name)
         df = replace_null_values(df, table_name)
         df = standardize_date_columns(df, table_name)
 
