@@ -204,6 +204,7 @@ for table_name in TABLES:
     except Exception as e:
         logger.error(f"Failed to process {table_name}: {e}")
         raise
+        
 
 # COMMAND ----------
 
