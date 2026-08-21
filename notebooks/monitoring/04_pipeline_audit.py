@@ -386,4 +386,4 @@ spark.sql(f"""
     SELECT *
     FROM {AUDIT_TABLE}
     ORDER BY run_timestamp DESC
-""")
+""")   
